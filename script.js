@@ -87,7 +87,7 @@ function removeFullLines() {
 function newTetromino() {
   const type = Math.floor(Math.random() * tetrominoes.length);
   currentTetromino = { shape: tetrominoes[type], color: type + 1 };
-  currentX = Math.floor(COLS / 2) - 1;
+  currentX = Math.floor(COLS / 2) - Math.floor(currentTetromino.shape[0].length / 2);
   currentY = 0;
   if (!isValidMove(currentX, currentY)) {
     alert('Game Over!');
