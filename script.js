@@ -20,6 +20,7 @@ let currentTetromino, currentX, currentY;
 let dropInterval = 500; // Interval in milliseconds
 let fastDropInterval = 50; // Faster interval for rapid down movement
 let lastDropTime = 0;
+let fastDropTimer = 0; // Timer to manage fast dropping
 let isFastDropping = false;
 
 function drawBoard() {
@@ -125,13 +126,25 @@ function moveRight() {
 }
 
 function gameLoop(timestamp) {
-  const deltaTime = timestamp - lastTime;
+  const deltaTime = timestamp - lastDropTime;
+
   if (deltaTime > (isFastDropping ? fastDropInterval : dropInterval)) {
     drawBoard();
     drawTetromino();
     moveDown();
-    lastTime = timestamp;
+    lastDropTime = timestamp;
   }
+
+  if (isFastDropping) {
+    fastDropTimer += deltaTime;
+    if (fastDropTimer > fastDropInterval) {
+      drawBoard();
+      drawTetromino();
+      moveDown();
+      fastDropTimer = 0;
+    }
+  }
+
   requestAnimationFrame(gameLoop);
 }
 
@@ -150,9 +163,11 @@ document.addEventListener('keydown', event => {
 document.addEventListener('keyup', event => {
   if (event.key === 'ArrowDown') {
     isFastDropping = false;
+    fastDropTimer = 0; // Reset fast drop timer
   }
 });
 
-let lastTime = 0;
+let lastDropTime = 0;
+let fastDropTimer = 0;
 newTetromino();
 requestAnimationFrame(gameLoop);
