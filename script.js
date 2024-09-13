@@ -17,6 +17,10 @@ const tetrominoes = [
 
 let board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
 let currentTetromino, currentX, currentY;
+let dropInterval = 500; // Interval in milliseconds
+let fastDropInterval = 50; // Faster interval for rapid down movement
+let lastDropTime = 0;
+let isFastDropping = false;
 
 function drawBoard() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -122,7 +126,7 @@ function moveRight() {
 
 function gameLoop(timestamp) {
   const deltaTime = timestamp - lastTime;
-  if (deltaTime > 500) { // Adjust the delay for speed
+  if (deltaTime > (isFastDropping ? fastDropInterval : dropInterval)) {
     drawBoard();
     drawTetromino();
     moveDown();
@@ -139,7 +143,13 @@ document.addEventListener('keydown', event => {
   } else if (event.key === 'ArrowUp') {
     rotateTetromino();
   } else if (event.key === 'ArrowDown') {
-    moveDown();
+    isFastDropping = true;
+  }
+});
+
+document.addEventListener('keyup', event => {
+  if (event.key === 'ArrowDown') {
+    isFastDropping = false;
   }
 });
 
