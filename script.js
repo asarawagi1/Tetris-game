@@ -23,6 +23,11 @@ let lastDropTime = 0;
 let isFastDropping = false;
 let fastDropTriggered = false;
 
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
 function drawBoard() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let row = 0; row < ROWS; row++) {
@@ -147,23 +152,42 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
-// Add touch events for iPhone
+// Handle swipe and tap for mobile devices
 function handleTouchStart(event) {
   const touch = event.touches[0];
-  const x = touch.clientX;
-  const y = touch.clientY;
-  const canvasRect = canvas.getBoundingClientRect();
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}
 
-  // Determine touch position and action based on the x/y coordinates
-  if (x < canvasRect.left + canvasRect.width / 3) {
-    moveLeft();
-  } else if (x > canvasRect.left + (canvasRect.width * 2) / 3) {
-    moveRight();
-  } else if (y > canvasRect.top + (canvasRect.height * 2) / 3) {
-    dropDownFast(); // Fast drop
+function handleTouchMove(event) {
+  const touch = event.touches[0];
+  touchEndX = touch.clientX;
+  touchEndY = touch.clientY;
+}
+
+function handleTouchEnd() {
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    if (deltaX > 0) {
+      moveRight(); // Swipe right
+    } else {
+      moveLeft(); // Swipe left
+    }
   } else {
-    rotateTetromino(); // Rotate
+    if (deltaY > 0) {
+      isFastDropping = true; // Swipe down
+    }
   }
+
+  if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
+    rotateTetromino(); // Tap to rotate
+  }
+
+  touchEndX = 0;
+  touchEndY = 0;
+  isFastDropping = false;
 }
 
 document.addEventListener('keydown', event => {
@@ -185,8 +209,9 @@ document.addEventListener('keyup', event => {
 });
 
 // Add touch event listeners for mobile support
-canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-document.addEventListener('touchmove', event => event.preventDefault(), { passive: false });
+canvas.addEventListener('touchstart', handleTouchStart);
+canvas.addEventListener('touchmove', handleTouchMove);
+canvas.addEventListener('touchend', handleTouchEnd);
 
 newTetromino();
 requestAnimationFrame(gameLoop);
