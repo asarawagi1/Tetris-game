@@ -169,4 +169,4 @@ document.addEventListener('keyup', event => {
 });
 
 newTetromino();
-requestAnimationFrame(gameLoop);
+requestAnimationFrame(gameLoop); 
