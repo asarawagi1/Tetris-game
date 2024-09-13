@@ -2,7 +2,7 @@ const canvas = document.getElementById('tetris');
 const ctx = canvas.getContext('2d');
 const ROWS = 20;
 const COLS = 10;
-const BLOCK_SIZE = 30;
+const BLOCK_SIZE = canvas.width / COLS; // Ensure the canvas width is divided correctly
 const colors = ['#000', '#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
 
 const tetrominoes = [
