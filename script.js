@@ -56,9 +56,12 @@ function rotateTetromino() {
 function isValidMove(x, y) {
   for (let row = 0; row < currentTetromino.shape.length; row++) {
     for (let col = 0; col < currentTetromino.shape[row].length; col++) {
-      if (currentTetromino.shape[row][col] &&
-          (board[row + y] && board[row + y][col + x]) !== 0) {
-        return false;
+      if (currentTetromino.shape[row][col]) {
+        const newX = x + col;
+        const newY = y + row;
+        if (newX < 0 || newX >= COLS || newY >= ROWS || board[newY][newX]) {
+          return false;
+        }
       }
     }
   }
@@ -117,11 +120,15 @@ function moveRight() {
   }
 }
 
-function gameLoop() {
-  drawBoard();
-  drawTetromino();
-  moveDown();
-  setTimeout(gameLoop, 1000);
+function gameLoop(timestamp) {
+  const deltaTime = timestamp - lastTime;
+  if (deltaTime > 500) { // Adjust the delay for speed
+    drawBoard();
+    drawTetromino();
+    moveDown();
+    lastTime = timestamp;
+  }
+  requestAnimationFrame(gameLoop);
 }
 
 document.addEventListener('keydown', event => {
@@ -136,5 +143,6 @@ document.addEventListener('keydown', event => {
   }
 });
 
+let lastTime = 0;
 newTetromino();
-gameLoop();
+requestAnimationFrame(gameLoop);
